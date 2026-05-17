@@ -1,0 +1,32 @@
+pollInterval: 2s
+requestTimeout: 1500ms
+staleAfter: 10s
+solarCapacityKw: 6.15
+retentionDays: 30
+
+server:
+  addr: ${SERVER_ADDR}
+  corsAllowedOrigins: ${CORS_ALLOWED_ORIGINS}
+
+storage:
+  sqlitePath: ${SQLITE_PATH}
+
+devices:
+  first:
+    host: ${SHELLY_FIRST_HOST}
+  second:
+    host: ${SHELLY_SECOND_HOST}
+
+roles:
+  grid:
+    device: first
+    channel: 0
+    invert: false
+  solar:
+    device: first
+    channel: 1
+    invert: false
+  hotWater:
+    device: second
+    channel: 0
+    invert: false
