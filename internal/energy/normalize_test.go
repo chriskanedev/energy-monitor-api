@@ -15,6 +15,7 @@ func TestNormalizerCalculatesDashboardValues(t *testing.T) {
 				Device:    "first",
 				Channel:   0,
 				PowerW:    2500,
+				VoltageV:  238.59,
 				Available: true,
 				ReadAt:    now,
 			},
@@ -45,6 +46,9 @@ func TestNormalizerCalculatesDashboardValues(t *testing.T) {
 
 	if snapshot.GridKw != 2.5 {
 		t.Fatalf("GridKw = %f", snapshot.GridKw)
+	}
+	if snapshot.GridVoltageV != 238.6 {
+		t.Fatalf("GridVoltageV = %f", snapshot.GridVoltageV)
 	}
 	if snapshot.SolarKw != 4.3 {
 		t.Fatalf("SolarKw = %f", snapshot.SolarKw)

@@ -1,5 +1,5 @@
-pollInterval: 2s
-requestTimeout: 1500ms
+pollInterval: 1s
+requestTimeout: 800ms
 staleAfter: 10s
 solarCapacityKw: 6.15
 retentionDays: 30

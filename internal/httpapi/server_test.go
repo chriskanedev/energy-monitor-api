@@ -26,7 +26,7 @@ func (f *fakeProvider) Subscribe() (<-chan energy.Snapshot, func()) {
 }
 
 func TestCurrentReturnsSnapshotWithCORS(t *testing.T) {
-	provider := &fakeProvider{snapshot: energy.Snapshot{GridKw: 1.2}}
+	provider := &fakeProvider{snapshot: energy.Snapshot{GridKw: 1.2, GridVoltageV: 238.6}}
 	server := httptest.NewServer(New(provider, []string{"http://localhost:5173"}).Handler())
 	defer server.Close()
 
@@ -50,6 +50,9 @@ func TestCurrentReturnsSnapshotWithCORS(t *testing.T) {
 	}
 	if snapshot.GridKw != 1.2 {
 		t.Fatalf("GridKw = %f", snapshot.GridKw)
+	}
+	if snapshot.GridVoltageV != 238.6 {
+		t.Fatalf("GridVoltageV = %f", snapshot.GridVoltageV)
 	}
 }
 

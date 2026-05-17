@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS snapshots (
 	house_kw REAL NOT NULL,
 	hot_water_kw REAL NOT NULL,
 	grid_kw REAL NOT NULL,
+	grid_voltage_v REAL NOT NULL DEFAULT 0,
 	solar_capacity_pct INTEGER NOT NULL
 );
 
@@ -80,6 +81,40 @@ CREATE INDEX IF NOT EXISTS idx_snapshots_observed_at ON snapshots(observed_at);
 `
 	if _, err := s.db.ExecContext(ctx, schema); err != nil {
 		return fmt.Errorf("migrate sqlite: %w", err)
+	}
+	if err := s.ensureSnapshotColumn(ctx, "grid_voltage_v", `ALTER TABLE snapshots ADD COLUMN grid_voltage_v REAL NOT NULL DEFAULT 0`); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) ensureSnapshotColumn(ctx context.Context, columnName string, statement string) error {
+	rows, err := s.db.QueryContext(ctx, `PRAGMA table_info(snapshots)`)
+	if err != nil {
+		return fmt.Errorf("inspect snapshots schema: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name string
+		var columnType string
+		var notNull int
+		var defaultValue sql.NullString
+		var primaryKey int
+		if err := rows.Scan(&cid, &name, &columnType, &notNull, &defaultValue, &primaryKey); err != nil {
+			return fmt.Errorf("scan snapshots schema: %w", err)
+		}
+		if name == columnName {
+			return nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate snapshots schema: %w", err)
+	}
+
+	if _, err := s.db.ExecContext(ctx, statement); err != nil {
+		return fmt.Errorf("add snapshots column %s: %w", columnName, err)
 	}
 	return nil
 }
@@ -97,14 +132,15 @@ func (s *Store) InsertPoll(ctx context.Context, snapshot energy.Snapshot, readin
 
 	observedAt := time.UnixMilli(snapshot.UpdatedAt).UTC().Format(time.RFC3339Nano)
 	if _, err = tx.ExecContext(ctx, `
-INSERT INTO snapshots (observed_at, updated_at_ms, solar_kw, house_kw, hot_water_kw, grid_kw, solar_capacity_pct)
-VALUES (?, ?, ?, ?, ?, ?, ?)`,
+INSERT INTO snapshots (observed_at, updated_at_ms, solar_kw, house_kw, hot_water_kw, grid_kw, grid_voltage_v, solar_capacity_pct)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		observedAt,
 		snapshot.UpdatedAt,
 		snapshot.SolarKw,
 		snapshot.HouseKw,
 		snapshot.HotWaterKw,
 		snapshot.GridKw,
+		snapshot.GridVoltageV,
 		snapshot.SolarCapacityPct,
 	); err != nil {
 		return fmt.Errorf("insert snapshot: %w", err)

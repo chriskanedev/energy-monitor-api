@@ -21,6 +21,7 @@ func (n Normalizer) Snapshot(inputs []RoleInput, homeHistory []Point, gridHistor
 		RoleSolar:    0,
 		RoleHotWater: 0,
 	}
+	gridVoltageV := 0.0
 	sources := make(map[Role]SourceStatus, len(inputs))
 
 	for _, input := range inputs {
@@ -36,6 +37,9 @@ func (n Normalizer) Snapshot(inputs []RoleInput, homeHistory []Point, gridHistor
 		switch input.Role {
 		case RoleGrid:
 			values[RoleGrid] = powerKw
+			if input.Reading.Available && !input.Reading.Stale {
+				gridVoltageV = roundOne(input.Reading.VoltageV)
+			}
 		case RoleSolar:
 			values[RoleSolar] = roundOne(math.Max(0, powerKw))
 		case RoleHotWater:
@@ -75,6 +79,7 @@ func (n Normalizer) Snapshot(inputs []RoleInput, homeHistory []Point, gridHistor
 		HouseKw:          houseKw,
 		HotWaterKw:       values[RoleHotWater],
 		GridKw:           values[RoleGrid],
+		GridVoltageV:     gridVoltageV,
 		SolarCapacityPct: solarCapacityPct,
 		HomeHistory:      homeHistory,
 		GridHistory:      gridHistory,

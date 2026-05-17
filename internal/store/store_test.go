@@ -22,6 +22,7 @@ func TestStoreInsertHistoryAndPrune(t *testing.T) {
 		HouseKw:          2.3,
 		HotWaterKw:       0.4,
 		GridKw:           1.5,
+		GridVoltageV:     239.1,
 		SolarCapacityPct: 20,
 		UpdatedAt:        now.UnixMilli(),
 	}

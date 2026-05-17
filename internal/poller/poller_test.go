@@ -42,7 +42,7 @@ func TestPollerBuildsSnapshotAndToleratesMissingSecondShelly(t *testing.T) {
 	client := fakeShellyClient{statuses: map[string]shelly.Status{
 		"first-host": {
 			EMeters: []shelly.EMeter{
-				{Power: 2500, IsValid: true},
+				{Power: 2500, Voltage: 238.59, IsValid: true},
 				{Power: 4300, IsValid: true},
 			},
 		},
@@ -54,6 +54,9 @@ func TestPollerBuildsSnapshotAndToleratesMissingSecondShelly(t *testing.T) {
 
 	if snapshot.GridKw != 2.5 {
 		t.Fatalf("GridKw = %f", snapshot.GridKw)
+	}
+	if snapshot.GridVoltageV != 238.6 {
+		t.Fatalf("GridVoltageV = %f", snapshot.GridVoltageV)
 	}
 	if snapshot.SolarKw != 4.3 {
 		t.Fatalf("SolarKw = %f", snapshot.SolarKw)

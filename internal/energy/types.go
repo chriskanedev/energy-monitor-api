@@ -31,6 +31,7 @@ type Snapshot struct {
 	HouseKw          float64               `json:"houseKw"`
 	HotWaterKw       float64               `json:"hotWaterKw"`
 	GridKw           float64               `json:"gridKw"`
+	GridVoltageV     float64               `json:"gridVoltageV"`
 	SolarCapacityPct int                   `json:"solarCapacityPct"`
 	HomeHistory      []Point               `json:"homeHistory"`
 	GridHistory      []Point               `json:"gridHistory"`
